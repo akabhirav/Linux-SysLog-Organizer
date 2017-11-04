@@ -1,0 +1,15 @@
+{
+  "name": "syslog",
+  "version": "1.0.0",
+  "description": "Log System log to a db for easier querying",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Abhirav Kumar",
+  "license": "MIT",
+  "dependencies": {
+    "mongoose": "^4.13.0"
+  }
+}
