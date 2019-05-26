@@ -1,8 +1,10 @@
 const fs = require('fs');
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/syslog', {useMongoClient: true});
-mongoose.connection.on('error', () => {
-  console.error("An error occured while connecting to mongo");
+mongoose.connect('mongodb://localhost:27017/syslog');
+mongoose.Promise = Promise;
+mongoose.connection.on('error', (err) => {
+  console.log(err);
+  console.error("An error occurred while connecting to mongo");
   process.exit(1);
 });
 const Schema = mongoose.Schema;
@@ -23,10 +25,10 @@ logs.forEach((line, index) => {
   let elements = line.split(' ');
   if (elements.length > 0) {
     let data = {};
-    if(elements[4]){
-      data.dateTime = new Date([elements[0], elements[2], (new Date).getFullYear(), elements[3]].join(' '));
-      data.system = elements[4].replace(/'/g, '');
-      let [process, pid] = elements[5].replace(':', '').replace(']', '').split('[');
+    if (elements[4]) {
+      data.dateTime = new Date([elements[0], elements[1], (new Date).getFullYear(), elements[2]].join(' '));
+      data.system = elements[3].replace(/'/g, '');
+      let [process, pid] = elements[4].replace(':', '').replace(']', '').split('[');
       data.process = process;
       data.pid = parseInt(pid) || 0;
       data.log = '';
@@ -47,13 +49,26 @@ logs.forEach((line, index) => {
       else
         data.type = 'UNKNOWN';
     }
-    let sysLog = new SysLog(data);
-    sysLog.save((err, sysLog) => {
-      if (err) console.error(err);
-      // console.log(sysLog);
+    SysLog.find({
+      "dateTime": data.dateTime,
+      process: data.process,
+      pid: data.pid,
+      log: data.log
+    }).exec((err, logs) => {
+      if(err) console.error(err);
+      let shouldWrite = logs.length === 0;
       console.log(logs.length);
-      if(index === logs.length - 1)
-        process.exit();
+      if(shouldWrite){
+        let sysLog = new SysLog(data);
+        sysLog.save((err, sysLog) => {
+          if (err) console.error(err);
+          if (index === logs.length - 1)
+            process.exit();
+        });
+        console.info("Written", data.process, data.pid, data.dateTime)
+      } else {
+        console.info("Skipped", data.process, data.pid, data.dateTime)
+      }
     });
   }
 });
