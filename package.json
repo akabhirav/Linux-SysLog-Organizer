@@ -2,14 +2,14 @@
   "name": "syslog",
   "version": "1.0.0",
   "description": "Log System log to a db for easier querying",
-  "main": "index.js",
+  "main": "serializer.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node serializer.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Abhirav Kumar",
   "license": "MIT",
   "dependencies": {
-    "mongoose": "^5.5.11"
+    "mongoose": "5.7.1"
   }
 }
