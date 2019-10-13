@@ -1,25 +1,8 @@
 const fs = require('fs');
-const mongoose = require('mongoose');
-// noinspection JSIgnoredPromiseFromCall
-mongoose.connect('mongodb://localhost:27017/syslog', {useNewUrlParser: true, useUnifiedTopology: true});
-mongoose.Promise = Promise;
-mongoose.connection.on('error', (err) => {
-    console.error(`An error occurred while connecting to mongo, ${err}`);
-    process.exit(1);
-});
-const Schema = mongoose.Schema;
-let SysLogSchema = new Schema({
-    dateTime: Date,
-    system: String,
-    process: String,
-    pid: Number,
-    log: {type: String},
-    type: {type: String, enum: ['ERROR', 'WARNING', 'STOP_UNLOAD', 'START_LOAD', 'INFO', 'KILLED', 'EXIT', 'AUDIT']},
-    originalLogLine: String
-});
+const mongoose = require('./libs/mongoose_connection').getInstance();
+const SysLog = require('./models/syslog');
 
-const SysLog = mongoose.model('SysLog', SysLogSchema);
-
+console.log('Reading Syslog File...');
 let logs = fs.readFileSync('/var/log/syslog', 'utf-8').split("\n");
 
 try {
@@ -55,6 +38,7 @@ try {
                 let sysLog = new SysLog(data);
                 sysLog.save().then((log, err) => {
                     if (err) console.error('SAVE ERROR: ', err);
+                    console.log(`Logging for process ${log.process} at time ${log.dateTime}`)
                     currentCount += 1;
                     exitIfComplete(currentCount, totalCount);
                 });
