@@ -10,7 +10,7 @@
   "author": "Abhirav Kumar",
   "license": "MIT",
   "dependencies": {
-    "mongoose": "5.7.4",
+    "mongoose": "5.7.5",
     "express": "^4.17.1",
     "morgan": "^1.9.1"
   }
